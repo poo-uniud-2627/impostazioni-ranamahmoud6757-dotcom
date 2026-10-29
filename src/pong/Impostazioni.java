@@ -28,7 +28,16 @@ public record Impostazioni(int puntiPerVincere, int scartoMinimo, int velocitaPa
      * dice quale valore è sbagliato e perché.
      */
     public Impostazioni {
-        // scrivete qui
+        if (puntiPerVincere < 1 || puntiPerVincere > 99) {
+    throw new IllegalArgumentException("puntiPerVincere deve essere tra 1 e 99");
+}
+if (scartoMinimo < 1 || scartoMinimo > 10) {
+    throw new IllegalArgumentException("scartoMinimo deve essere tra 1 e 10");
+}
+if (velocitaPalla < 1 || velocitaPalla > 20) {
+    throw new IllegalArgumentException("velocitaPalla deve essere tra 1 e 20");
+}
+
     }
 
     /**
@@ -51,7 +60,84 @@ public record Impostazioni(int puntiPerVincere, int scartoMinimo, int velocitaPa
      * Se ci sono errori in più righe, il messaggio è quello della riga più in alto.
      */
     public static Impostazioni leggi(List<String> righe) {
-        return STANDARD; // scrivete qui
+       int punti = 11;
+       int scarto = 2;
+       int velocita = 5;
+
+        boolean trovatoPunti = false;
+        boolean trovatoScarto = false;
+        boolean trovatoVelocita = false;
+
+        for (int i = 0; i < righe.size(); i++) {
+    String riga = righe.get(i).trim();
+    int numero = i + 1;
+
+            if (riga.isEmpty() || riga.startsWith("#")) {
+        continue;
+    }
+
+            int posizione = riga.indexOf("=");
+
+            if (posizione == -1) {
+        throw new IllegalArgumentException("riga " + numero + ": manca =");
+    }
+
+            String chiave = riga.substring(0, posizione).trim();
+    String testo = riga.substring(posizione + 1).trim();
+
+    if (!chiave.equals("puntiPerVincere")
+            && !chiave.equals("scartoMinimo")
+            && !chiave.equals("velocitaPalla")) {
+        throw new IllegalArgumentException("riga " + numero + ": chiave sconosciuta");
+    }
+
+    if (chiave.equals("puntiPerVincere") && trovatoPunti) {
+        throw new IllegalArgumentException("riga " + numero + ": chiave ripetuta");
+    }
+
+    if (chiave.equals("scartoMinimo") && trovatoScarto) {
+        throw new IllegalArgumentException("riga " + numero + ": chiave ripetuta");
+    }
+
+    if (chiave.equals("velocitaPalla") && trovatoVelocita) {
+        throw new IllegalArgumentException("riga " + numero + ": chiave ripetuta");
+    }
+
+    int valore;
+
+    try {
+        valore = Integer.parseInt(testo);
+    } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("riga " + numero + ": valore non intero");
+    }
+
+    if (chiave.equals("puntiPerVincere")) {
+        if (valore < 1 || valore > 99) {
+            throw new IllegalArgumentException("riga " + numero + ": valore fuori intervallo");
+        }
+        punti = valore;
+        trovatoPunti = true;
+    }
+
+    if (chiave.equals("scartoMinimo")) {
+        if (valore < 1 || valore > 10) {
+            throw new IllegalArgumentException("riga " + numero + ": valore fuori intervallo");
+        }
+        scarto = valore;
+        trovatoScarto = true;
+    }
+
+    if (chiave.equals("velocitaPalla")) {
+        if (valore < 1 || valore > 20) {
+            throw new IllegalArgumentException("riga " + numero + ": valore fuori intervallo");
+        }
+        velocita = valore;
+        trovatoVelocita = true;
+    }
+}
+
+return new Impostazioni(punti, scarto, velocita);
+
     }
 
     /**
